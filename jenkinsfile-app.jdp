@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    stages {
+        stage('Pull') { 
+            steps {
+                git branch: 'dev', credentialsId: '1d7c488f-00bd-4402-9e3f-83e855d96db8', url: 'https://github.com/shubhamkalsait/cloudblitz-crm-backend.git'
+            }
+        }
+        stage('build-test'){
+            steps {
+                withSonarQubeEnv(installationName: 'sonar', credentialsId: 'sonarqube-token') {
+                    sh '/opt/apache-maven/bin/mvn clean package sonar:sonar -Dsonar.projectKey=student-app' 
+                }
+            }
+        }
+        stage('quality-gate'){
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        stage('deliver'){
+            steps {
+                sh '''
+                    aws s3 ./target/*.war s3://cloudblitz-backend/student.war
+                '''
+            }
+        }
+
+    }
+}

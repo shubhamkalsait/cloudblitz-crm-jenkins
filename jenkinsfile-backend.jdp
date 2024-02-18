@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+    stages {
+        stage('Pull') { 
+            steps {
+                git branch: 'dev', credentialsId: '1d7c488f-00bd-4402-9e3f-83e855d96db8', url: 'https://github.com/shubhamkalsait/cloudblitz-crm-docker.git'
+            }
+        }
+        stage('build'){
+            steps {
+               sh 'docker build . -t shubhamkalsait1/student-api:latest'
+                }
+            }
+        }
+        stage('docker-push'){
+            steps {
+                sh 'docker push shubhamkalsait1/student-api:latest'
+                }
+            }
+        }
+        stage('deploy'){
+            steps {
+                sh '''
+                    cd backend/
+                    kubectl apply -f .
+                '''
+            }
+        }
+
+    }
+}

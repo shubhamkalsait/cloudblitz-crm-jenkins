@@ -1,0 +1,24 @@
+pipeline {
+    agent any
+    stages {
+        stage('pull') {
+            steps {
+                git branch: 'dev', url: 'https://github.com/shubhamkalsait/cloudblitz-crm-jenkins.git'
+            }
+        }
+        stage ('test') {
+            steps {
+                sh '''
+                    terraform init
+                    terraform plan
+                '''
+            }
+        }
+        stage ('deploy') {
+            sh '''
+                terraform init
+                terraform apply
+            '''
+        }
+    }
+}

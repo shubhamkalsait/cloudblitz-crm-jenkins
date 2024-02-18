@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+    stages {
+        stage('pull') {
+            steps {
+                git branch: 'dev', url: 'https://github.com/shubhamkalsait/cloudblitz-crm.git'
+            }
+        }
+        stage ('deploy') {
+            steps {
+                sh '''
+                    aws s3 cp ./* s3://cloudblitz-frontend/
+                '''
+            }
+        }
+    }
+}
